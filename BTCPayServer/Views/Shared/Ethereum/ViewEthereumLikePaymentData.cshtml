@@ -1,16 +1,16 @@
 @using System.Globalization
-@using BTCPayServer.Controllers
-@using BTCPayServer.Services.Altcoins.Monero.Payments
-@using BTCPayServer.Services.Altcoins.Monero.UI
+@using BTCPayServer.Services.Altcoins.Ethereum.Payments
+@using BTCPayServer.Services.Altcoins.Ethereum.UI
 @model IEnumerable<BTCPayServer.Services.Invoices.PaymentEntity>
 
 @{
-    var onchainPayments = Model.Where(entity => entity.GetPaymentMethodId().PaymentType == MoneroPaymentType.Instance).Select(payment =>
+    var onchainPayments = Model.Where(entity => entity.GetPaymentMethodId().PaymentType == EthereumPaymentType.Instance).Select(payment =>
     {
-        var m = new MoneroPaymentViewModel();
-        var onChainPaymentData = payment.GetCryptoPaymentData() as MoneroLikePaymentData;
+        var m = new EthereumPaymentViewModel();
+        var onChainPaymentData = payment.GetCryptoPaymentData() as EthereumLikePaymentData;
         m.Crypto = payment.GetPaymentMethodId().CryptoCode;
         m.DepositAddress = onChainPaymentData.GetDestination();
+        
         m.Amount = onChainPaymentData.GetValue().ToString(CultureInfo.InvariantCulture);
         var confirmationCount = onChainPaymentData.ConfirmationCount;
         var network = payment.Network as MoneroLikeSpecificBtcPayNetwork;
@@ -22,7 +22,7 @@
         {
             m.Confirmations = confirmationCount.ToString(CultureInfo.InvariantCulture);
         }
-
+        m.Amount = onChainPaymentData.GetValue().ToString(CultureInfo.InvariantCulture);
         m.TransactionId = onChainPaymentData.TransactionId;
         m.ReceivedTime = payment.ReceivedTime;
         m.TransactionLink = string.Format(CultureInfo.InvariantCulture, payment.Network.BlockExplorerLink, m.TransactionId);
@@ -34,7 +34,7 @@
 {
     <div class="row">
         <div class="col-md-12 invoice-payments">
-            <h3>Monero payments</h3>
+            <h3>Ethereum/ERC-20 payments</h3>
             <table class="table table-sm table-responsive-lg">
                 <thead class="thead-inverse">
                 <tr>

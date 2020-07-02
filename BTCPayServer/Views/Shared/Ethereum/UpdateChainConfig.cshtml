@@ -1,0 +1,28 @@
+@using BTCPayServer.Views.Server
+@model BTCPayServer.Services.Altcoins.Ethereum.Configuration.EthereumLikeConfiguration
+@{
+    Layout = "../_NavLayout.cshtml";
+    ViewData["NavPartialName"] = "../Server/_Nav";
+    ViewBag.MainTitle = "Server settings";
+    ViewData.SetActivePageAndTitle(ServerNavPages.Policies, $"ETH Chain {Model.ChainId} Configuration");
+}
+
+<partial name="_StatusMessage" />
+@if (!this.ViewContext.ModelState.IsValid)
+{
+    <div asp-validation-summary="All" class="text-danger"></div>
+}
+
+<form method="post">
+    <div class="form-group">
+        <input type="hidden" asp-for="ChainId"/>
+        <div class="form-check">
+            <label asp-for="Web3ProviderUrl" class="form-control-label"></label>
+            <input asp-for="Web3ProviderUrl" type="text" class="form-control"/>
+            <span asp-validation-for="Web3ProviderUrl" class="text-danger"></span>
+        </div>
+
+    </div>
+   
+    <button type="submit" class="btn btn-primary" name="command" value="Save">Save</button>
+</form>
