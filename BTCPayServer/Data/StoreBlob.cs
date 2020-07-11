@@ -20,7 +20,7 @@ namespace BTCPayServer.Data
         public StoreBlob()
         {
             InvoiceExpiration = 15;
-            MonitoringExpiration = 1440;
+            MonitoringExpiration = 60;
             PaymentTolerance = 0;
             ShowRecommendedFee = true;
             RecommendedFeeBlockTarget = 1;
