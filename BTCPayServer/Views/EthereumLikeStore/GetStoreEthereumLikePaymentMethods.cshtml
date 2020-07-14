@@ -47,7 +47,7 @@
                             }
                         </td>
                         <td class="text-right">
-                            <a id="Modify" asp-action="GetStoreEthereumLikePaymentMethod"
+                            <a id="Modify@(item.CryptoCode)" asp-action="GetStoreEthereumLikePaymentMethod"
                                asp-route-storeId="@this.Context.GetRouteValue("storeId")"
                                asp-route-cryptoCode="@item.CryptoCode">
                                 Modify

@@ -75,7 +75,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.UI
             {
                 Severity = StatusMessageModel.StatusSeverity.Success, Message = $"Chain {chainId} updated"
             });
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(UpdateChainConfig));
         }
 
         [HttpGet("{chainId}/p")]

@@ -1,6 +1,7 @@
+@using BTCPayServer.Services.Altcoins.Ethereum.Services
 @inject BTCPayServer.HostedServices.NBXplorerDashboard dashboard
-
-@if (!dashboard.IsFullySynched())
+@inject EthereumService EthereumService
+@if (!dashboard.IsFullySynched() || !EthereumService.IsAllAvailable())
 {
     <!-- Modal -->
     <div id="modalDialog" class="modal-dialog animated bounceInRight"

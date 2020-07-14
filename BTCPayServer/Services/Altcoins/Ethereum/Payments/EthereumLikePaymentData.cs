@@ -13,6 +13,8 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Payments
         public long Amount { get; set; }
         public string CryptoCode { get; set; }
         public string Address { get; set; }
+        public long AccountIndex { get; set; }
+        public string XPub { get; set; }
         public long ConfirmationCount { get; set; }
         public BTCPayNetworkBase Network { get; set; }
         public long? BlockNumber { get; set; }

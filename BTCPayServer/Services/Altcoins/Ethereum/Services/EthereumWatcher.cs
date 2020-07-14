@@ -108,7 +108,9 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                             response.BlockParameter.ParameterType == BlockParameter.BlockParameterType.blockNumber
                                 ? (long?)response.BlockParameter.BlockNumber.Value
                                 : (long?)null,
-                        ConfirmationCount = 0
+                        ConfirmationCount = 0,
+                        AccountIndex = response.PaymentMethodDetails.Index,
+                        XPub = response.PaymentMethodDetails.XPub
                     };
                     var payment = await _invoiceRepository.AddPayment(invoice.Id, DateTimeOffset.UtcNow,
                         paymentData, network, true);
@@ -117,7 +119,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                 else if (existingPayment != null)
                 {
                     var cd = (EthereumLikePaymentData)existingPayment.GetCryptoPaymentData();
-                    //existing payment
+                    //existing payment amount was changed. Set to unaccounted and register as a new payment.
                     if (response.Amount == 0 || response.Amount != cd.Amount)
                     {
                         existingPayment.Accounted = false;
@@ -140,7 +142,10 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                                     response.BlockParameter.ParameterType ==
                                     BlockParameter.BlockParameterType.blockNumber
                                         ? 1
-                                        : 0
+                                        : 0,
+                                
+                                AccountIndex = cd.AccountIndex,
+                                XPub = cd.XPub
                             };
                             var payment = await _invoiceRepository.AddPayment(invoice.Id, DateTimeOffset.UtcNow,
                                 paymentData, network, true);
@@ -149,10 +154,11 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                     }
                     else if (response.Amount == cd.Amount)
                     {
+                        //transition from pending to 1 confirmed
                         if (cd.BlockNumber is null && response.BlockParameter.ParameterType ==
                             BlockParameter.BlockParameterType.blockNumber)
                         {
-                            cd.ConfirmationCount = 0;
+                            cd.ConfirmationCount = 1;
                             cd.BlockNumber = (long?)response.BlockParameter.BlockNumber.Value;
 
                             existingPayment.SetCryptoPaymentData(cd);
@@ -160,6 +166,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
 
                             _eventAggregator.Publish(new Events.InvoiceNeedUpdateEvent(invoice.Id));
                         }
+                        //increment confirm count
                         else if (response.BlockParameter.ParameterType ==
                                  BlockParameter.BlockParameterType.blockNumber)
                         {
@@ -168,7 +175,6 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                                 cd.ConfirmationCount =
                                     (long)(response.BlockParameter.BlockNumber.Value - cd.BlockNumber.Value);
                             }
-
                             else
                             {
                                 cd.BlockNumber = (long?)response.BlockParameter.BlockNumber.Value;
@@ -264,7 +270,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                             MatchedExistingPayment = tuple.Payment,
                             BlockParameter = blockParameter,
                             ChainId = ChainId,
-                            InvoiceEntity = tuple.Invoice
+                            InvoiceEntity = tuple.Invoice,
                         });
                     })).ContinueWith(task =>
                     {
@@ -289,7 +295,8 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                             MatchedExistingPayment = null,
                             BlockParameter = blockParameter,
                             ChainId = ChainId,
-                            InvoiceEntity = tuple.Invoice
+                            InvoiceEntity = tuple.Invoice,
+                            PaymentMethodDetails = (EthereumLikeOnChainPaymentMethodDetails) tuple.PaymentMethodDetails.GetPaymentMethodDetails()
                         });
                     }));
                 }
@@ -307,6 +314,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
             public long Amount { get; set; }
             public InvoiceEntity InvoiceEntity { get; set; }
             public PaymentEntity MatchedExistingPayment { get; set; }
+            public EthereumLikeOnChainPaymentMethodDetails PaymentMethodDetails { get; set; }
 
             public override string ToString()
             {

@@ -16,7 +16,7 @@ namespace BTCPayServer
                         ? "https://etherscan.io/address/{0}"
                         : "https://ropsten.etherscan.io/address/{0}",
                 CryptoImagePath = "/imlegacy/eth.png",
-                ShowSyncSummary = false,
+                ShowSyncSummary = true,
                 CoinType = NetworkType == NetworkType.Mainnet? 60 : 1,
                 ChainId = NetworkType == NetworkType.Mainnet ? 1 : 3,
                 Divisibility = 18,

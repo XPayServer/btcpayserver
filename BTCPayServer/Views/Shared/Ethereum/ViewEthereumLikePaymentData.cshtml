@@ -18,6 +18,7 @@
         m.ReceivedTime = payment.ReceivedTime;
         m.BalanceLink = string.Format(CultureInfo.InvariantCulture, payment.Network.BlockExplorerLink, m.DepositAddress);
         m.Replaced = !payment.Accounted;
+        m.Index = onChainPaymentData.AccountIndex;
         return m;
     });
 }
@@ -33,6 +34,7 @@
                     <th>Crypto</th>
                     <th>Amount</th>
                     <th>Address</th>
+                    <th>Index</th>
                     <th class="text-right">Confirmations</th>
                 </tr>
                 </thead>
@@ -51,6 +53,7 @@
                                 </a>
                             </div>
                         </td>
+                        <td>@payment.Index</td>
                         <td class="text-right">@payment.Confirmations</td>
                     </tr>
                 }

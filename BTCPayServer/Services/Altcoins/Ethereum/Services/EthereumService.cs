@@ -170,7 +170,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Services
                 _chainHostedServices.Remove(ethereumLikeConfiguration.ChainId);
             }
 
-            if (!string.IsNullOrWhiteSpace(ethereumLikeConfiguration.Web3ProviderUrl) && !string.IsNullOrEmpty(ethereumLikeConfiguration.InvoiceId))
+            if (!string.IsNullOrWhiteSpace(ethereumLikeConfiguration.Web3ProviderUrl))
             {
                 if (_btcPayNetworkProvider.NetworkType == EthereumConfigController.InvoiceEnforced &&
                     !await EthereumConfigController.CheckValid(ethereumLikeConfiguration.InvoiceId))

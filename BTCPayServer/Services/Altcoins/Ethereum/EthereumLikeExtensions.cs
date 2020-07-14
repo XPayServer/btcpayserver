@@ -1,12 +1,7 @@
-using System;
-using System.Linq;
-using BTCPayServer.Configuration;
 using BTCPayServer.Contracts;
 using BTCPayServer.Payments;
-using BTCPayServer.Services.Altcoins.Ethereum.Configuration;
 using BTCPayServer.Services.Altcoins.Ethereum.Payments;
 using BTCPayServer.Services.Altcoins.Ethereum.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
