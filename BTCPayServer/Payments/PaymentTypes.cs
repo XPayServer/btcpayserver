@@ -1,5 +1,6 @@
 using System;
 #if ALTCOINS
+using BTCPayServer.Services.Altcoins.Ethereum.Payments;
 using BTCPayServer.Services.Altcoins.Monero.Payments;
 #endif
 using BTCPayServer.Services.Invoices;
@@ -37,6 +38,9 @@ namespace BTCPayServer.Payments
 #if ALTCOINS
                 case "monerolike":
                     type = MoneroPaymentType.Instance;
+                    break;
+                case "ethereumlike":
+                    type = EthereumPaymentType.Instance;
                     break;
 #endif
                 default:
