@@ -12,6 +12,7 @@ using DBriize;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NBitcoin;
+using NLog;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 
 namespace BTCPayServer.Services.Invoices
@@ -165,8 +166,12 @@ retry:
                 {
                     if (paymentMethod.Network == null)
                         throw new InvalidOperationException("CryptoCode unsupported");
-                    var paymentDestination = paymentMethod.GetPaymentMethodDetails().GetPaymentDestination();
-
+                    var details = paymentMethod.GetPaymentMethodDetails();
+                    if (!details.Activated)
+                    {
+                        continue;
+                    }
+                    var paymentDestination = details.GetPaymentDestination();
                     string address = GetDestination(paymentMethod);
                     context.AddressInvoices.Add(new AddressInvoiceData()
                     {
@@ -229,7 +234,13 @@ retry:
             if (paymentMethod.GetId().PaymentType == Payments.PaymentTypes.BTCLike)
             {
                 var network = (BTCPayNetwork)paymentMethod.Network;
-                return ((Payments.Bitcoin.BitcoinLikeOnChainPaymentMethod)paymentMethod.GetPaymentMethodDetails()).GetDepositAddress(network.NBitcoinNetwork).ScriptPubKey.Hash.ToString();
+                var details =
+                    (Payments.Bitcoin.BitcoinLikeOnChainPaymentMethod)paymentMethod.GetPaymentMethodDetails();
+                if (!details.Activated)
+                {
+                    return null;
+                }
+                return details.GetDepositAddress(network.NBitcoinNetwork).ScriptPubKey.Hash.ToString();
             }
             ///////////////
             return paymentMethod.GetPaymentMethodDetails().GetPaymentDestination();
@@ -292,9 +303,27 @@ retry:
                     return;
                 var network = paymentMethod.Network;
                 var invoiceEntity = invoice.GetBlob(_Networks);
+                var newDetails = paymentMethod.GetPaymentMethodDetails();
+                var existing = invoiceEntity.GetPaymentMethod(paymentMethod.GetId());
+                if (existing.GetPaymentMethodDetails().GetPaymentDestination() != newDetails.GetPaymentDestination() && newDetails.Activated)
+                {
+                    await context.AddressInvoices.AddAsync(new AddressInvoiceData()
+                        {
+                            InvoiceDataId = invoiceId,
+                            CreatedTime = DateTimeOffset.UtcNow
+                        }
+                        .Set(GetDestination(paymentMethod), paymentMethod.GetId()));
+                    await context.HistoricalAddressInvoices.AddAsync(new HistoricalAddressInvoiceData()
+                    {
+                        InvoiceDataId = invoiceId,
+                        Assigned = DateTimeOffset.UtcNow
+                    }.SetAddress(paymentMethod.GetPaymentMethodDetails().GetPaymentDestination(), network.CryptoCode));
+                }
                 invoiceEntity.SetPaymentMethod(paymentMethod);
                 invoice.Blob = ToBytes(invoiceEntity, network);
                 await context.SaveChangesAsync();
+                AddToTextSearch(invoice.Id, paymentMethod.GetPaymentMethodDetails().GetPaymentDestination());
+                
             }
         }
 
@@ -337,7 +366,7 @@ retry:
         {
             foreach (var address in entity.GetPaymentMethods())
             {
-                if (paymentMethodId != null && paymentMethodId != address.GetId())
+                if ((paymentMethodId != null && paymentMethodId != address.GetId()) || !address.GetPaymentMethodDetails().Activated)
                     continue;
                 var historical = new HistoricalAddressInvoiceData();
                 historical.InvoiceDataId = invoiceId;

@@ -379,6 +379,7 @@ namespace BTCPayServer.Controllers
             vm.HtmlTitle = storeBlob.HtmlTitle;
             vm.SetLanguages(_LangService, storeBlob.DefaultLang);
             vm.RequiresRefundEmail = storeBlob.RequiresRefundEmail;
+            vm.LazyPaymentMethods = storeBlob.LazyPaymentMethods;
             vm.ShowRecommendedFee = storeBlob.ShowRecommendedFee;
             vm.RecommendedFeeBlockTarget = storeBlob.RecommendedFeeBlockTarget;
             vm.OnChainMinValue = storeBlob.OnChainMinValue?.ToString() ?? "";
@@ -440,6 +441,7 @@ namespace BTCPayServer.Controllers
             blob.HtmlTitle = string.IsNullOrWhiteSpace(model.HtmlTitle) ? null : model.HtmlTitle;
             blob.DefaultLang = model.DefaultLang;
             blob.RequiresRefundEmail = model.RequiresRefundEmail;
+            blob.LazyPaymentMethods = model.LazyPaymentMethods;
             blob.ShowRecommendedFee = model.ShowRecommendedFee;
             blob.RecommendedFeeBlockTarget = model.RecommendedFeeBlockTarget;
             blob.OnChainMinValue = onchainMinValue;

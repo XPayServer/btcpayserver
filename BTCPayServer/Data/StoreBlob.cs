@@ -40,6 +40,8 @@ namespace BTCPayServer.Data
             set;
         }
 
+        public bool LazyPaymentMethods { get; set; } = false;
+
         public bool RequiresRefundEmail { get; set; }
 
         public bool ShowRecommendedFee { get; set; }
