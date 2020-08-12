@@ -120,6 +120,7 @@ namespace BTCPayServer.Controllers.GreenField
                 //we do not include OnChainMinValue and LightningMaxValue because moving the CurrencyValueJsonConverter to the Client csproj is hard and requires a refactor (#1571 & #1572)
                 NetworkFeeMode = storeBlob.NetworkFeeMode,
                 RequiresRefundEmail = storeBlob.RequiresRefundEmail,
+                LazyPaymentMethods = storeBlob.LazyPaymentMethods,
                 ShowRecommendedFee = storeBlob.ShowRecommendedFee,
                 RecommendedFeeBlockTarget = storeBlob.RecommendedFeeBlockTarget,
                 DefaultLang = storeBlob.DefaultLang,
@@ -155,6 +156,7 @@ namespace BTCPayServer.Controllers.GreenField
             //we do not include OnChainMinValue and LightningMaxValue because moving the CurrencyValueJsonConverter to the Client csproj is hard and requires a refactor (#1571 & #1572)
             blob.NetworkFeeMode = restModel.NetworkFeeMode;
             blob.RequiresRefundEmail = restModel.RequiresRefundEmail;
+            blob.LazyPaymentMethods = restModel.LazyPaymentMethods;
             blob.ShowRecommendedFee = restModel.ShowRecommendedFee;
             blob.RecommendedFeeBlockTarget = restModel.RecommendedFeeBlockTarget;
             blob.DefaultLang = restModel.DefaultLang;
