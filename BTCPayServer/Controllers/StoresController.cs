@@ -378,6 +378,7 @@ namespace BTCPayServer.Controllers
             vm.CustomCSS = storeBlob.CustomCSS;
             vm.CustomLogo = storeBlob.CustomLogo;
             vm.HtmlTitle = storeBlob.HtmlTitle;
+            vm.HtmlContentBlockInject = storeBlob.HtmlContentBlockInject;
             vm.SetLanguages(_LangService, storeBlob.DefaultLang);
             vm.RequiresRefundEmail = storeBlob.RequiresRefundEmail;
             vm.ShowRecommendedFee = storeBlob.ShowRecommendedFee;
@@ -448,6 +449,7 @@ namespace BTCPayServer.Controllers
             blob.CustomLogo = model.CustomLogo;
             blob.CustomCSS = model.CustomCSS;
             blob.HtmlTitle = string.IsNullOrWhiteSpace(model.HtmlTitle) ? null : model.HtmlTitle;
+            blob.HtmlContentBlockInject = string.IsNullOrWhiteSpace(model.HtmlContentBlockInject) ? null : model.HtmlContentBlockInject;
             blob.DefaultLang = model.DefaultLang;
             blob.RequiresRefundEmail = model.RequiresRefundEmail;
             blob.ShowRecommendedFee = model.ShowRecommendedFee;

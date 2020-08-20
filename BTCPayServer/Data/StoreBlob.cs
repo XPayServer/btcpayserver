@@ -120,7 +120,7 @@ namespace BTCPayServer.Data
         public bool AnyoneCanInvoice { get; set; }
 
         public CoinSwitchSettings CoinSwitchSettings { get; set; }
-
+        public string HtmlContentBlockInject { get; set; }
         string _LightningDescriptionTemplate;
         public string LightningDescriptionTemplate
         {

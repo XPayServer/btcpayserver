@@ -121,6 +121,7 @@ namespace BTCPayServer.Services.Apps
                 CustomCSSLink = settings.CustomCSSLink,
                 MainImageUrl = settings.MainImageUrl,
                 EmbeddedCSS = settings.EmbeddedCSS,
+                HtmlContentBlockInject = appData.StoreData.GetStoreBlob().HtmlContentBlockInject,
                 StoreId = appData.StoreDataId,
                 AppId = appData.Id,
                 StartDate = settings.StartDate?.ToUniversalTime(),

@@ -89,5 +89,9 @@
 
 <body class="h-100">
     @RenderBody()
+    @if (!string.IsNullOrEmpty(Model.HtmlContentBlockInject) && !User.Identity.IsAuthenticated)
+    {
+        @Html.Raw(Model.HtmlContentBlockInject);
+    }
 </body>
 </html>
