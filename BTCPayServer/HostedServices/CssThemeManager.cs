@@ -62,6 +62,7 @@ namespace BTCPayServer.HostedServices
 
         public bool ShowRegister { get; set; }
         public bool DiscourageSearchEngines { get; set; }
+        public string HtmlContentBlockInject { get; set; }
 
         public AppType? RootAppType { get; set; }
         public string RootAppId { get; set; }
@@ -74,7 +75,7 @@ namespace BTCPayServer.HostedServices
         {
             ShowRegister = !data.LockSubscription;
             DiscourageSearchEngines = data.DiscourageSearchEngines;
-
+            HtmlContentBlockInject = data.HtmlContentBlockInject;
             RootAppType = data.RootAppType;
             RootAppId = data.RootAppId;
             DomainToAppMapping = data.DomainToAppMapping;

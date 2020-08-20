@@ -31,6 +31,9 @@ namespace BTCPayServer.Services
         public string RootAppId { get; set; }
         public AppType? RootAppType { get; set; }
 
+        [Display(Name = "HTML to inject into each page in backend")]
+        public string HtmlContentBlockInject { get; set; }
+
         public List<DomainToAppMappingItem> DomainToAppMapping { get; set; } = new List<DomainToAppMappingItem>();
 
         public class DomainToAppMappingItem
