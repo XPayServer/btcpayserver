@@ -54,6 +54,7 @@ namespace BTCPayServer.HostedServices
         }
 
         private string _creativeStartUri;
+        
         private PoliciesSettings _policies = new PoliciesSettings();
 
         public PoliciesSettings Policies { get { return _policies; } }
@@ -67,6 +68,7 @@ namespace BTCPayServer.HostedServices
         public bool DiscourageSearchEngines  { get { return _policies.DiscourageSearchEngines; } }
         public AppType? RootAppType { get { return _policies.RootAppType; } }
         public string RootAppId  { get { return _policies.RootAppId; } }
+        public string HtmlContentBlockInject { get { return _policies.HtmlContentBlockInject; } }
 
         public bool FirstRun { get; set; }
 

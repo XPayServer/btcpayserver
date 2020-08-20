@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using BTCPayServer.Data;
 using BTCPayServer.Payments;
 using BTCPayServer.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -61,6 +60,9 @@ namespace BTCPayServer.Models.StoreViewModels
         [Display(Name = "Redirect invoice to redirect url automatically after paid")]
         public bool RedirectAutomatically { get; set; }
 
+        [Display(Name = "Raw HTML to inject into checkout page")]
+        public string HtmlContentBlockInject { get; set; }
+        
         public List<PaymentMethodCriteriaViewModel> PaymentMethodCriteria { get; set; }
     }
 

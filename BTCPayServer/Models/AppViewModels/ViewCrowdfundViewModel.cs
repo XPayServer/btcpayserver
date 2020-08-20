@@ -75,6 +75,7 @@ namespace BTCPayServer.Models.AppViewModels
         public bool Enabled { get; set; }
         public string ResetEvery { get; set; }
         public Dictionary<string, CurrencyData> CurrencyDataPayments { get; set; }
+        public string HtmlContentBlockInject { get; set; }
     }
 
     public class ContributeToCrowdfund
