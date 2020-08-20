@@ -107,8 +107,7 @@ namespace BTCPayServer.Data
 
         public ChangellySettings ChangellySettings { get; set; }
         public CoinSwitchSettings CoinSwitchSettings { get; set; }
-
-
+        public string HtmlContentBlockInject { get; set; }
         string _LightningDescriptionTemplate;
         public string LightningDescriptionTemplate
         {

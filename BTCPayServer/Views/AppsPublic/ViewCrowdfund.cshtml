@@ -54,6 +54,9 @@
         }
         @await Html.PartialAsync("/Views/AppsPublic/Crowdfund/VueCrowdfund.cshtml", Model)
     }
-
+@if (!string.IsNullOrEmpty(Model.HtmlContentBlockInject) && !User.Identity.IsAuthenticated)
+{
+    @Html.Raw(Model.HtmlContentBlockInject);
+}
 </body>
 </html>

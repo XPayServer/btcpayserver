@@ -127,6 +127,7 @@
             document.getElementById("browserScheme").innerText = window.location.protocol.substr(0, window.location.protocol.length -1);
         }
     </script>
+    @Html.Raw(themeManager.HtmlContentBlockInject)
 </body>
 
 </html>
