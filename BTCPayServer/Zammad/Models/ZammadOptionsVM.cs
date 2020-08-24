@@ -5,6 +5,7 @@ namespace BTCPayServer.Zammad
     public class ZammadOptionsVM : ZammadOptions
     {
         public SelectList Groups { get; set; }
+        public SelectList Organizations { get; set; }
 
         public void FromOptions(ZammadOptions options)
         {
@@ -15,6 +16,8 @@ namespace BTCPayServer.Zammad
             this.Endpoint = options.Endpoint;
             this.APIKey = options.APIKey;
             this.ServerTicketsGroupId = options.ServerTicketsGroupId;
+            this.ServerUserOrganizationId = options.ServerUserOrganizationId;
+            this.Enabled = options.Enabled;
         }
         public ZammadOptions ToOptions()
         {
@@ -23,7 +26,9 @@ namespace BTCPayServer.Zammad
                 Configured = Configured,
                 Endpoint = Endpoint,
                 APIKey = APIKey,
-                ServerTicketsGroupId = ServerTicketsGroupId
+                ServerTicketsGroupId = ServerTicketsGroupId,
+                ServerUserOrganizationId = ServerUserOrganizationId,
+                Enabled = Enabled
             };
         }
     }

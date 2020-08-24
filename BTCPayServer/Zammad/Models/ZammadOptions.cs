@@ -10,5 +10,10 @@ namespace BTCPayServer.Zammad
 
         [Display(Name = "Which group put new server tickets in?")]
         public int? ServerTicketsGroupId { get; set; }
+
+        [Display(Name = "Which organization to map users to?")]
+        public int? ServerUserOrganizationId { get; set; }
+
+        public bool Enabled { get; set; }
     }
 }

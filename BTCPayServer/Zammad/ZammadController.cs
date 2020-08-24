@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using BTCPayServer.Data;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Memory;
 using Zammad.Client;
 using Zammad.Client.Resources;
 
@@ -18,11 +20,14 @@ namespace BTCPayServer.Zammad
     {
         private readonly SettingsRepository _settingsRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMemoryCache _memoryCache;
 
-        public ZammadController(SettingsRepository settingsRepository, UserManager<ApplicationUser> userManager)
+        public ZammadController(SettingsRepository settingsRepository, UserManager<ApplicationUser> userManager,
+            IMemoryCache memoryCache)
         {
             _settingsRepository = settingsRepository;
             _userManager = userManager;
+            _memoryCache = memoryCache;
         }
 
         [HttpGet("~/server/zammad")]
@@ -30,16 +35,22 @@ namespace BTCPayServer.Zammad
             AuthenticationSchemes = BTCPayServer.Security.AuthenticationSchemes.Cookie)]
         public async Task<IActionResult> UpdateSetting()
         {
-            var settings = await _settingsRepository.GetSettingAsync<ZammadOptions>();
+            var setting = await GetOptions(true);
             var vm = new ZammadOptionsVM() { };
-            vm.FromOptions(settings);
+            vm.FromOptions(setting);
             try
             {
                 if (vm.Configured is true)
                 {
                     var client = ZammadAccount.CreateTokenAccount(vm.Endpoint, vm.APIKey);
                     vm.Groups = new SelectList((await client.CreateGroupClient().GetGroupListAsync()).Select(group =>
-                            new SelectListItem(group.Name, group.Id.ToString())), nameof(SelectListItem.Value),
+                            new SelectListItem(group.Name, group.Id.ToString(CultureInfo.InvariantCulture))),
+                        nameof(SelectListItem.Value),
+                        nameof(SelectListItem.Text));
+                    vm.Organizations = new SelectList(
+                        (await client.CreateOrganizationClient().GetOrganizationListAsync()).Select(group =>
+                            new SelectListItem(group.Name, group.Id.ToString(CultureInfo.InvariantCulture))),
+                        nameof(SelectListItem.Value),
                         nameof(SelectListItem.Text));
                 }
             }
@@ -79,8 +90,8 @@ namespace BTCPayServer.Zammad
         [Authorize(AuthenticationSchemes = BTCPayServer.Security.AuthenticationSchemes.Cookie)]
         public async Task<IActionResult> ListTickets()
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
-            if (setting?.Configured is true)
+            var setting = await GetOptions();
+            if (IsAvailable(setting))
             {
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var currentUser = _userManager.GetUserId(User);
@@ -113,8 +124,8 @@ namespace BTCPayServer.Zammad
         [Authorize(AuthenticationSchemes = BTCPayServer.Security.AuthenticationSchemes.Cookie)]
         public async Task<IActionResult> CreateTicket()
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
-            if (setting?.Configured is true)
+            var setting = await GetOptions();
+            if (IsAvailable(setting))
             {
                 return View(new CreateTicketVM());
             }
@@ -126,8 +137,8 @@ namespace BTCPayServer.Zammad
         [Authorize(AuthenticationSchemes = BTCPayServer.Security.AuthenticationSchemes.Cookie)]
         public async Task<IActionResult> CreateTicket(CreateTicketVM vm)
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
-            if (setting?.Configured is true)
+            var setting = await GetOptions();
+            if (IsAvailable(setting))
             {
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var currentUser = _userManager.GetUserId(User);
@@ -137,10 +148,40 @@ namespace BTCPayServer.Zammad
                 if (matchedUser == null)
                 {
                     var userEmail = _userManager.GetUserName(User);
-                    matchedUser = await userClient.CreateUserAsync(new User()
+                    try
                     {
-                        Login = currentUser, Active = true, Verified = true, Email = userEmail
-                    });
+                        matchedUser = await userClient.CreateUserAsync(new User()
+                        {
+                            Login = currentUser,
+                            Active = true,
+                            Verified = true,
+                            Email = userEmail,
+                            OrganizationId = setting.ServerUserOrganizationId
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        try
+                        {
+                            matchedUser = await userClient.CreateUserAsync(new User()
+                            {
+                                Login = currentUser,
+                                Active = true,
+                                Verified = true,
+                                Note =
+                                    $"User email {userEmail} was already in system so account was created without association.",
+                                OrganizationId = setting.ServerUserOrganizationId
+                            });
+                        }
+                        catch (Exception exception)
+                        {
+                            TempData.SetStatusMessageModel(new StatusMessageModel()
+                            {
+                                Severity = StatusMessageModel.StatusSeverity.Error, Message = e.Message
+                            });
+                            return View(vm);
+                        }
+                    }
                 }
 
                 if (matchedUser != null)
@@ -195,8 +236,8 @@ namespace BTCPayServer.Zammad
         [Authorize(AuthenticationSchemes = BTCPayServer.Security.AuthenticationSchemes.Cookie)]
         public async Task<IActionResult> ViewTicket(int ticketId)
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
-            if (setting?.Configured is true)
+            var setting = await GetOptions();
+            if (IsAvailable(setting))
             {
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var currentUser = _userManager.GetUserId(User);
@@ -227,10 +268,10 @@ namespace BTCPayServer.Zammad
         [HttpPost("~/support/{ticketId}/reply")]
         public async Task<IActionResult> ReplyToTicket(int ticketId, ReplyTicketVM vm)
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
+            var setting = await GetOptions();
 
             TicketArticle res = null;
-            if (setting?.Configured is true)
+            if (IsAvailable(setting))
             {
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var currentUser = _userManager.GetUserId(User);
@@ -275,10 +316,10 @@ namespace BTCPayServer.Zammad
         [HttpPost("~/support/{ticketId}/resolve")]
         public async Task<IActionResult> ResolveTicket(int ticketId, ReplyTicketVM vm)
         {
-            var setting = await _settingsRepository.GetSettingAsync<ZammadOptions>();
+            var setting = await GetOptions();
 
             TicketArticle res = null;
-            if (setting?.Configured is true)
+            if (IsAvailable(setting))
             {
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var currentUser = _userManager.GetUserId(User);
@@ -316,6 +357,17 @@ namespace BTCPayServer.Zammad
             }
 
             return NotFound();
+        }
+
+        private bool IsAvailable(ZammadOptions options)
+        {
+            return options?.Configured is true && options.Enabled;
+        }
+
+        private async Task<ZammadOptions> GetOptions(bool forceLoad = false)
+        {
+            return await _memoryCache.GetOrCreateAsync(nameof(ZammadOptions),
+                async entry => await _settingsRepository.GetSettingAsync<ZammadOptions>());
         }
     }
 }
