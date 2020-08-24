@@ -43,7 +43,7 @@ namespace BTCPayServer.Controllers
         [XFrameOptionsAttribute(XFrameOptionsAttribute.XFrameOptions.AllowAll)]
         public async Task<IActionResult> ViewPointOfSale(string appId, PosViewType? viewType = null)
         {
-            var app = await _AppService.GetApp(appId, AppType.PointOfSale);
+            var app = await _AppService.GetApp(appId, AppType.PointOfSale, true);
             if (app == null)
                 return NotFound();
             var settings = app.GetSettings<PointOfSaleSettings>();
@@ -78,7 +78,8 @@ namespace BTCPayServer.Controllers
                 CustomCSSLink = settings.CustomCSSLink,
                 AppId = appId,
                 Description = settings.Description,
-                EmbeddedCSS = settings.EmbeddedCSS
+                EmbeddedCSS = settings.EmbeddedCSS,
+                HtmlContentBlockInject = app.StoreData.GetStoreBlob().HtmlContentBlockInject
             });
         }
 
@@ -230,6 +231,7 @@ namespace BTCPayServer.Controllers
                 return NotFound("A Target Currency must be set for this app in order to be loadable.");
             }
             var appInfo = (ViewCrowdfundViewModel)(await _AppService.GetAppInfo(appId));
+            
             appInfo.HubPath = AppHub.GetHubPath(this.Request);
             if (settings.Enabled)
                 return View(appInfo);

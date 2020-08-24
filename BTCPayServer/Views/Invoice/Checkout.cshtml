@@ -386,7 +386,7 @@
 {
     <partial name="@paymentMethodHandler.ExtensionPartial" model="@Model"/>
 }
-@if (!string.IsNullOrEmpty(Model.HtmlContentBlockInject))
+@if (!string.IsNullOrEmpty(Model.HtmlContentBlockInject) && !User.Identity.IsAuthenticated)
 {
     @Html.Raw(Model.HtmlContentBlockInject);
 }
