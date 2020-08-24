@@ -30,6 +30,7 @@ using BTCPayServer.Services.Shopify;
 using BTCPayServer.Services.Stores;
 using BTCPayServer.Services.Wallets;
 using BTCPayServer.U2F;
+using BTCPayServer.Zammad;
 using BundlerMinifier.TagHelpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -79,6 +80,7 @@ namespace BTCPayServer.Hosting
             services.RegisterJsonConverter(n => new ClaimDestinationJsonConverter(n));
 
             services.AddPayJoinServices();
+            services.AddZammadServices();
 #if ALTCOINS
             services.AddMoneroLike();
             services.AddEthereumLike();
