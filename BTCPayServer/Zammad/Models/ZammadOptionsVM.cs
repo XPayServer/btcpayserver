@@ -8,6 +8,9 @@ namespace BTCPayServer.Zammad
 
         public void FromOptions(ZammadOptions options)
         {
+            if(options is null){
+                return;
+            }
             this.Configured = options.Configured;
             this.Endpoint = options.Endpoint;
             this.APIKey = options.APIKey;
