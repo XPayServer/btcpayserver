@@ -16,5 +16,15 @@ namespace BTCPayServer.Zammad
             this.APIKey = options.APIKey;
             this.ServerTicketsGroupId = options.ServerTicketsGroupId;
         }
+        public ZammadOptions ToOptions()
+        {
+            return new ZammadOptions()
+            {
+                Configured = Configured,
+                Endpoint = Endpoint,
+                APIKey = APIKey,
+                ServerTicketsGroupId = ServerTicketsGroupId
+            };
+        }
     }
 }

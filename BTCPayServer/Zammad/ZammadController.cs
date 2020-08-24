@@ -58,7 +58,7 @@ namespace BTCPayServer.Zammad
                 var client = ZammadAccount.CreateTokenAccount(setting.Endpoint, setting.APIKey);
                 var me = await client.CreateUserClient().GetUserMeAsync();
                 setting.Configured = true;
-                await _settingsRepository.UpdateSetting((ZammadOptions)setting);
+                await _settingsRepository.UpdateSetting(setting.ToOptions());
                 TempData.SetStatusMessageModel(new StatusMessageModel()
                 {
                     Severity = StatusMessageModel.StatusSeverity.Success, Message = "Settings updated."
