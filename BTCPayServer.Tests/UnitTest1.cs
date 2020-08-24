@@ -1933,7 +1933,11 @@ namespace BTCPayServer.Tests
                 user.RegisterDerivationScheme("BTC");
                 var vm = Assert.IsType<CheckoutExperienceViewModel>(Assert
                     .IsType<ViewResult>(user.GetController<StoresController>().CheckoutExperience()).Model);
-                vm.OnChainMinValue = "5 USD";
+                Assert.Single(vm.PaymentMethodCriteria);
+                var criteria = vm.PaymentMethodCriteria.First();
+                Assert.Equal(new PaymentMethodId("BTC", BitcoinPaymentType.Instance).ToString(), criteria.PaymentMethod);
+                criteria.Value = "5 USD";
+                criteria.Above = true;
                 Assert.IsType<RedirectToActionResult>(user.GetController<StoresController>().CheckoutExperience(vm)
                     .Result);
 
@@ -1950,6 +1954,21 @@ namespace BTCPayServer.Tests
 
                 Assert.Single(invoice.CryptoInfo);
                 Assert.Equal(PaymentTypes.BTCLike.ToString(), invoice.CryptoInfo[0].PaymentType);
+
+                //test backward compat
+                var store = await tester.PayTester.StoreRepository.FindStore(user.StoreId);
+                var blob = store.GetStoreBlob();
+                blob.PaymentMethodCriteria = new List<PaymentMethodCriteria>();
+#pragma warning disable 612
+                blob.OnChainMinValue = new CurrencyValue()
+#pragma warning restore 612
+                {
+                    Currency = "USD",
+                    Value = 2m
+                };
+                var criteriaCompat = store.GetPaymentMethodCriteria(tester.NetworkProvider, blob);
+                Assert.Single(criteriaCompat);
+                Assert.NotNull(criteriaCompat.FirstOrDefault(methodCriteria => methodCriteria.Value.ToString() == "2 USD" && methodCriteria.Above && methodCriteria.PaymentMethod == new PaymentMethodId("BTC", BitcoinPaymentType.Instance) ));
             }
         }
 
@@ -1968,7 +1987,11 @@ namespace BTCPayServer.Tests
                 user.RegisterLightningNode("BTC", LightningConnectionType.Charge);
                 var vm = Assert.IsType<CheckoutExperienceViewModel>(Assert
                     .IsType<ViewResult>(user.GetController<StoresController>().CheckoutExperience()).Model);
-                vm.LightningMaxValue = "2 USD";
+                Assert.Single(vm.PaymentMethodCriteria);
+                var criteria = vm.PaymentMethodCriteria.First();
+                Assert.Equal(new PaymentMethodId("BTC", LightningPaymentType.Instance).ToString(), criteria.PaymentMethod);
+                criteria.Value = "2 USD";
+                criteria.Above = false;
                 Assert.IsType<RedirectToActionResult>(user.GetController<StoresController>().CheckoutExperience(vm)
                     .Result);
 
@@ -1985,6 +2008,22 @@ namespace BTCPayServer.Tests
 
                 Assert.Single(invoice.CryptoInfo);
                 Assert.Equal(PaymentTypes.LightningLike.ToString(), invoice.CryptoInfo[0].PaymentType);
+                
+                //test backward compat
+                var store = await tester.PayTester.StoreRepository.FindStore(user.StoreId);
+                var blob = store.GetStoreBlob();
+                blob.PaymentMethodCriteria = new List<PaymentMethodCriteria>();
+#pragma warning disable 612
+                blob.LightningMaxValue = new CurrencyValue()
+#pragma warning restore 612
+                {
+                    Currency = "USD",
+                    Value = 2m
+                };
+                var criteriaCompat = store.GetPaymentMethodCriteria(tester.NetworkProvider, blob);
+                Assert.Single(criteriaCompat);
+                Assert.NotNull(criteriaCompat.FirstOrDefault(methodCriteria => methodCriteria.Value.ToString() == "2 USD" && !methodCriteria.Above && methodCriteria.PaymentMethod == new PaymentMethodId("BTC", LightningPaymentType.Instance) ));
+                
             }
         }
 
