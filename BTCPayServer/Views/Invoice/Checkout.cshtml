@@ -368,5 +368,9 @@
 {
     <partial name="@paymentMethodHandler.ExtensionPartial" model="@Model"/>
 }
+@if (!string.IsNullOrEmpty(Model.HtmlContentBlockInject))
+{
+    @Html.Raw(Model.HtmlContentBlockInject);
+}
 </body>
 </html>

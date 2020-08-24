@@ -44,6 +44,7 @@ namespace BTCPayServer.Client.Models
         public string CustomCSS { get; set; }
 
         public string HtmlTitle { get; set; }
+        public string HtmlContentBlockInject { get; set; }
 
         public bool RedirectAutomatically { get; set; }
 
