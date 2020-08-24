@@ -294,7 +294,7 @@ namespace BTCPayServer.Controllers
                 }
 
                 var criteria = store.GetPaymentMethodCriteria(_NetworkProvider, storeBlob)?.Find(methodCriteria => methodCriteria.PaymentMethod == supportedPaymentMethod.PaymentId);
-                if (criteria != null)
+                if (criteria?.Value != null)
                 {
                     var currentRateToCrypto =
                         await fetchingByCurrencyPair[new CurrencyPair(supportedPaymentMethod.PaymentId.CryptoCode, criteria.Value.Currency)];
