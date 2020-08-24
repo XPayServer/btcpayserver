@@ -11,6 +11,7 @@ using BTCPayServer.Client.Models;
 using BTCPayServer.Data;
 using BTCPayServer.Events;
 using BTCPayServer.Filters;
+using BTCPayServer.Logging;
 using BTCPayServer.Models;
 using BTCPayServer.Models.InvoicingModels;
 using BTCPayServer.Payments;
@@ -310,6 +311,57 @@ namespace BTCPayServer.Controllers
             return RedirectToAction(nameof(ListInvoices));
         }
 
+        [HttpPost("i/{invoiceId}/{paymentMethodId}/activate")]
+        [AcceptMediaTypeConstraint("application/bitcoin-paymentrequest", false)]
+        [XFrameOptionsAttribute(null)]
+        [ReferrerPolicyAttribute("origin")]
+        public async Task<IActionResult> ActivatePaymentMethod(string invoiceId, string paymentMethodId)
+        {
+            var paymentMethodParsed = PaymentMethodId.Parse(paymentMethodId);
+            
+            var invoice = await _InvoiceRepository.GetInvoice(invoiceId);
+            if (invoice == null)
+                return NotFound();
+
+            var eligibleMethodToActivate = invoice.GetPaymentMethod(paymentMethodParsed);
+            if (!eligibleMethodToActivate.GetPaymentMethodDetails().Activated)
+            {
+                
+                var store = await _StoreRepository.FindStore(invoice.StoreId);
+                var payHandler = _paymentMethodHandlerDictionary[paymentMethodParsed];
+                var supportPayMethod = invoice.GetSupportedPaymentMethod()
+                    .Single(method => method.PaymentId == paymentMethodParsed);
+                var paymentMethod = invoice.GetPaymentMethod(paymentMethodParsed);
+                var network = this._NetworkProvider.GetNetwork(paymentMethodParsed.CryptoCode);
+                var prepare = payHandler.PreparePayment(supportPayMethod, store, network);
+                InvoiceLogs logs = new InvoiceLogs();
+                try
+                {
+                    logs.Write($"{paymentMethodId}: Activating");
+                    var newDetails = await
+                        payHandler.CreatePaymentMethodDetails(logs, supportPayMethod, paymentMethod, store, network,
+                            prepare);
+                    eligibleMethodToActivate.SetPaymentMethodDetails(newDetails);
+                    await _InvoiceRepository.UpdateInvoicePaymentMethod(invoiceId, eligibleMethodToActivate);
+                }
+                
+                catch (PaymentMethodUnavailableException ex)
+                {
+                    logs.Write($"{paymentMethodId}: Payment method unavailable ({ex.Message})");
+                }
+                catch (Exception ex)
+                {
+                    logs.Write($"{paymentMethodId}: Unexpected exception ({ex.ToString()})");
+                }
+                
+                
+                await _InvoiceRepository.AddInvoiceLogs(invoiceId, logs);
+                _EventAggregator.Publish(new Events.InvoiceNeedUpdateEvent(invoice.Id));
+            }
+
+            return Ok();
+        }
+
         [HttpGet]
         [Route("i/{invoiceId}")]
         [Route("i/{invoiceId}/{paymentMethodId}")]
@@ -428,6 +480,7 @@ namespace BTCPayServer.Controllers
 
             var model = new PaymentModel()
             {
+                Activated = paymentMethodDetails.Activated,
                 CryptoCode = network.CryptoCode,
                 RootPath = this.Request.PathBase.Value.WithTrailingSlash(),
                 OrderId = invoice.OrderId,
@@ -496,7 +549,8 @@ namespace BTCPayServer.Controllers
                                           .ToList()
             };
 
-            paymentMethodHandler.PreparePaymentModel(model, dto, storeBlob);
+            if(model.Activated)
+                paymentMethodHandler.PreparePaymentModel(model, dto, storeBlob);
             if (model.IsLightning && storeBlob.LightningAmountInSatoshi && model.CryptoCode == "Sats")
             {
                 model.Rate = _CurrencyNameTable.DisplayFormatCurrency(paymentMethod.Rate / 100_000_000, paymentMethod.ParentEntity.ProductInformation.Currency);

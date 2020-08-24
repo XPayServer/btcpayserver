@@ -61,6 +61,9 @@ namespace BTCPayServer.Models.StoreViewModels
         [Display(Name = "Redirect invoice to redirect url automatically after paid")]
         public bool RedirectAutomatically { get; set; }
 
+        [Display(Name = "Only enable the payment method after user explicitly activates it")]
+        public bool LazyPaymentMethods { get; set; }
+
         public List<PaymentMethodCriteriaViewModel> PaymentMethodCriteria { get; set; }
         [Display(Name = "Raw HTML to inject into checkout page")]
         public string HtmlContentBlockInject { get; set; }

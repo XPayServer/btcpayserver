@@ -26,5 +26,7 @@ namespace BTCPayServer.Payments
         /// </summary>
         /// <param name="newPaymentDestination"></param>
         void SetPaymentDestination(string newPaymentDestination);
+        
+        bool Activated {get;set;}
     }
 }
