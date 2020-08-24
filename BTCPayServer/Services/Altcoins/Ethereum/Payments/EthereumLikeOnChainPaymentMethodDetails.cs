@@ -32,6 +32,7 @@ namespace BTCPayServer.Services.Altcoins.Ethereum.Payments
         public long Index { get; set; }
         public string XPub { get; set; }
         public string DepositAddress { get; set; }
+        public bool Activated { get; set; } = true;
     }
 }
 #endif
