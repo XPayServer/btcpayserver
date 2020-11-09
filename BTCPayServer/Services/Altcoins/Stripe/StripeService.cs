@@ -114,7 +114,8 @@ namespace BTCPayServer.Services.Altcoins.Stripe
                         }
 
                         await _invoiceRepository.AddInvoiceLogs(invoice.Id, logs);
-                        await _invoiceRepository.NewAddress(invoice.Id, details, network);
+                        method.SetPaymentMethodDetails(details);
+                        await _invoiceRepository.UpdateInvoicePaymentMethod(invoice.Id, method);
                     }
                 }
 

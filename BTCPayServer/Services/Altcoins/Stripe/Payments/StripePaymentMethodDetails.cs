@@ -33,6 +33,8 @@ namespace BTCPayServer.Services.Altcoins.Stripe.Payments
             return 0m;
         }
 
+        public bool Activated { get; set; } = true;
+
         public void SetPaymentDestination(string newPaymentDestination)
         {
             var mapped = JsonConvert.DeserializeObject<StripePaymentMethodDetails>(newPaymentDestination);

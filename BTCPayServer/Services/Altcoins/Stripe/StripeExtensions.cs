@@ -13,7 +13,7 @@ namespace BTCPayServer.Services.Altcoins.Stripe
             serviceCollection.AddSingleton<StripePaymentMethodHandler>();
             serviceCollection.AddSingleton<IPaymentMethodHandler>(provider =>
                 provider.GetService<StripePaymentMethodHandler>());
-            serviceCollection.AddSingleton<IStoreNavExtension, StripeStoreNavExtension>();
+            serviceCollection.AddSingleton<IUIExtension>(new UIExtension("Stripe/StoreNavStripeExtension", "store-nav"));
             serviceCollection.AddHostedService<StripeService>();
 
             return serviceCollection;
