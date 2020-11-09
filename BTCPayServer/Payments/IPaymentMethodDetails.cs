@@ -21,5 +21,7 @@ namespace BTCPayServer.Payments
         /// </summary>
         /// <returns></returns>
         decimal GetFeeRate();
+        
+        bool Activated {get;set;}
     }
 }

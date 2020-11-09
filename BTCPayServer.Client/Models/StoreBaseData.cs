@@ -49,6 +49,7 @@ namespace BTCPayServer.Client.Models
         public bool RedirectAutomatically { get; set; }
 
         public bool RequiresRefundEmail { get; set; }
+        public bool LazyPaymentMethods { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

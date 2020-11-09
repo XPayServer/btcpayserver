@@ -381,6 +381,7 @@ namespace BTCPayServer.Controllers
             vm.HtmlContentBlockInject = storeBlob.HtmlContentBlockInject;
             vm.SetLanguages(_LangService, storeBlob.DefaultLang);
             vm.RequiresRefundEmail = storeBlob.RequiresRefundEmail;
+            vm.LazyPaymentMethods = storeBlob.LazyPaymentMethods;
             vm.ShowRecommendedFee = storeBlob.ShowRecommendedFee;
             vm.RecommendedFeeBlockTarget = storeBlob.RecommendedFeeBlockTarget;
             vm.LightningAmountInSatoshi = storeBlob.LightningAmountInSatoshi;
@@ -457,6 +458,7 @@ namespace BTCPayServer.Controllers
             blob.HtmlContentBlockInject = string.IsNullOrWhiteSpace(model.HtmlContentBlockInject) ? null : model.HtmlContentBlockInject;
             blob.DefaultLang = model.DefaultLang;
             blob.RequiresRefundEmail = model.RequiresRefundEmail;
+            blob.LazyPaymentMethods = model.LazyPaymentMethods;
             blob.ShowRecommendedFee = model.ShowRecommendedFee;
             blob.RecommendedFeeBlockTarget = model.RecommendedFeeBlockTarget;
             blob.LightningAmountInSatoshi = model.LightningAmountInSatoshi;
