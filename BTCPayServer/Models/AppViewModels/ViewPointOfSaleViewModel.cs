@@ -52,5 +52,6 @@ namespace BTCPayServer.Models.AppViewModels
         public string CustomLogoLink { get; set; }
         public string Description { get; set; }
         public string EmbeddedCSS { get; set; }
+        public string HtmlContentBlockInject { get; set; }
     }
 }

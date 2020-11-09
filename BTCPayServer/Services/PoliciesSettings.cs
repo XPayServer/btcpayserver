@@ -37,6 +37,9 @@ namespace BTCPayServer.Services
         [Display(Name = "Override the block explorers used")]
         public List<BlockExplorerOverrideItem> BlockExplorerLinks { get; set; } = new List<BlockExplorerOverrideItem>();
         
+        [Display(Name = "HTML to inject into each page in backend")]
+        public string HtmlContentBlockInject { get; set; }
+
         public List<DomainToAppMappingItem> DomainToAppMapping { get; set; } = new List<DomainToAppMappingItem>();
 
         public class BlockExplorerOverrideItem

@@ -125,6 +125,11 @@
 
         </div>
     }
+    <div class="form-group">
+        <label asp-for="HtmlContentBlockInject" class="control-label"></label>
+        <textarea asp-for="HtmlContentBlockInject" class="form-control richtext html"></textarea>
+        <span asp-validation-for="HtmlContentBlockInject" class="text-danger"></span>
+    </div>
     <div class="form-group card">
         <div class="cursor-pointer p-2" data-target="#explorer-links" data-toggle="collapse">
             <label asp-for="BlockExplorerLinks" class="pb-0 cursor-pointer"></label>
